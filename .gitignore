@@ -1,0 +1,11 @@
+/*
+ * Filename: /home/codestax/statusPage/statusPage/.gitignore
+ * Path: /home/codestax/statusPage/statusPage
+ * Created Date: Sunday, February 2nd 2025, 6:52:39 pm
+ * Author: Prakersharya
+ * 
+ * Copyright (c) 2025 Trinom Digital Pvt Ltd
+ */
+
+node_modules
+.env

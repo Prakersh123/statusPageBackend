@@ -1,0 +1,22 @@
+{
+    "pk": "9519141288",
+    "sk": "MENTOR",
+    "firstName": "prakarsh",
+    "lastName": "arya",
+    "email": "prakersh@gmail.com",
+    "dob": "2000-12-01",
+    "gender": "Male",
+    "race": "indian",
+    "street": "habb",
+    "city": "varanasi",
+    "country":"india",
+    "zipcode": "435234543",
+    "educationLevel": "graduate",
+    "college": "!iit",
+    "intrest": ["chess"],
+    "phoneNumber": "9519141281",
+    "proofDocumentURL":"",
+    "accountVerificationStatus": "PENDING",
+    "questions": []
+
+}

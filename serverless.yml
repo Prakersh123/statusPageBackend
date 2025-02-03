@@ -1,0 +1,17 @@
+service: identifyou-mentor
+
+provider:
+  name: aws
+  stage: dev
+  region: ap-south-1
+  runtime: nodejs18.x
+  lambdaHashingVersion: 20201221
+  timeout: 30
+functions:
+  app:
+    handler: app.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+package:
+  excludeDevDependencies: true
