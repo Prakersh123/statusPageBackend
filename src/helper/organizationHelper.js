@@ -94,32 +94,43 @@ class orgnizationHelper {
         throw error;
     }
 
-}
-getLoginSessionToken = async (token) => {
-    const getParams = {
-        TableName: process.env.ORG_TABLE,
-        KeyConditionExpression: 'pk = :pk AND sk = :sk',
-        ExpressionAttributeValues: {
-            ':pk': token,
-            ':sk': 'SESSIONTOKEN'
-        }
-    };
-    const userData = await performDDBOperation('query', db, getParams);
+    }
+    getLoginSessionToken = async (token) => {
+        const getParams = {
+            TableName: process.env.ORG_TABLE,
+            KeyConditionExpression: 'pk = :pk AND sk = :sk',
+            ExpressionAttributeValues: {
+                ':pk': token,
+                ':sk': 'SESSIONTOKEN'
+            }
+        };
+        const userData = await performDDBOperation('query', db, getParams);
 
-    return userData;
-}
-deleteToken = async (token) => {
-    const ddbParams = {
-        TableName: process.env.ORG_TABLE,
-        Key: {
-            pk: token,
-            sk: 'SESSIONTOKEN'
-        }
-    };
-    const userData = await performDDBOperation('delete', db, ddbParams);
-    return userData;
+        return userData;
+    }
+    deleteToken = async (token) => {
+        const ddbParams = {
+            TableName: process.env.ORG_TABLE,
+            Key: {
+                pk: token,
+                sk: 'SESSIONTOKEN'
+            }
+        };
+        const userData = await performDDBOperation('delete', db, ddbParams);
+        return userData;
 
-}
+    }
+    getAllConnectionIDOrganization = async (id) => {
+        let ddbParams = {
+            TableName: process.env.CONNECTION_TABLE,
+            KeyConditionExpression: 'pk =:pk',
+            ExpressionAttributeValues: {
+                ':pk':`ORG#${id}`
+            }
+        }
+        const apiData = await performDDBOperation('query', db, ddbParams);
+        return apiData;
+    }
 }
 
 module.exports = new orgnizationHelper()

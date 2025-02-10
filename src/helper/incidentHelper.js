@@ -57,6 +57,7 @@ class incidentHelper {
         Item: data
     };
     await performDDBOperation('put', db, ddbParams);
+    return data;
    }
 
    getIncidentGivenID = async(organizationID, incidentID='') => {

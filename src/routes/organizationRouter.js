@@ -16,10 +16,10 @@
  const controller = require('../controllers/organizationController');
  const router = express.Router();
  // GET REQUESTS
- router.post('/', loggingMiddleware('createUser'), controller.createUser);
+ router.post('/', loggingMiddleware('createUser'), mentorAuthMW(), controller.createUser);
  router.get('/users', loggingMiddleware('getAllUserOfOrganization'), mentorAuthMW(), controller.getAllUserOfOrganization);
  router.post('/login', loggingMiddleware('loginUser'), controller.loginUser);
- router.post('/logout', loggingMiddleware('logout'), controller.logout);
+ router.post('/logout', loggingMiddleware('logout'), mentorAuthMW(), controller.logout);
  
  module.exports = router;
  

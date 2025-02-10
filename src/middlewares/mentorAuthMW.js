@@ -31,7 +31,7 @@ function mentorAuthMiddleware() {
                 return errorHandler(401, res, req, "Invalid auth token", "Unauthorized");
             }
         } catch (error) {
-            return errorHandler(500, res, req, "Error fetching token details", "Server Error");
+            return errorHandler(500, res, req, "Error fetching token details", "Server Error", error);
         }
         tokenDetails = tokenDetails.Items[0];
         let decodedUserData;
@@ -40,7 +40,7 @@ function mentorAuthMiddleware() {
             console.log('secrr', JSON.stringify(process.env.JWT_SECRET));
             decodedUserData = jwt.verify(tokenDetails.pk, process.env.JWT_SECRET);
         } catch (error) {
-            return errorHandler(401, res, req, "Invalid or expired token", "Invalid Token");
+            return errorHandler(401, res, req, "Invalid or expired token", "Invalid Token", error);
         }
 
         try {
@@ -52,7 +52,7 @@ function mentorAuthMiddleware() {
             }
             req.userDetails = UserData.Items[0];
         } catch (error) {
-            return errorHandler(500, res, req, "Error fetching mentor details", "Server Error");
+            return errorHandler(500, res, req, "Error fetching mentor details", "Server Error", error);
         }
 
         next();

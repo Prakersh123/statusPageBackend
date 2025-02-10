@@ -14,11 +14,13 @@
  const controller = require('../controllers/serviceController');
  const router = express.Router();
  // GET REQUESTS
- router.post('/', loggingMiddleware('createService'), controller.createService);
- router.put('/', loggingMiddleware('createService'), controller.updateService);
+ router.post('/', loggingMiddleware('createService'), mentorAuthMW(), controller.createService);
+ router.put('/', loggingMiddleware('createService'), mentorAuthMW(), controller.updateService);
+ router.get('/listv2', loggingMiddleware('getServiceAPI'), controller.getServices);
 
- router.get('/list', loggingMiddleware('getServiceAPI'), controller.getServices);
- router.get('/dashboard', loggingMiddleware('getServicesDashboard'), controller.getServicesDashboard);
+ router.get('/list', loggingMiddleware('getServiceAPI'), mentorAuthMW(), controller.getServices);
+ 
+ router.get('/dashboard', loggingMiddleware('getServicesDashboard'), mentorAuthMW(), controller.getServicesDashboard);
 
  
  

@@ -14,10 +14,10 @@
  const controller = require('../controllers/serviceGroupController');
  const router = express.Router();
  // GET REQUESTS
- router.post('/', loggingMiddleware('createServiceGroup'), controller.createServiceGroup);
- router.put('/', loggingMiddleware('createServiceGroup'), controller.updateServiceGroup);
+ router.post('/', loggingMiddleware('createServiceGroup'), mentorAuthMW(), controller.createServiceGroup);
+ router.put('/', loggingMiddleware('createServiceGroup'), mentorAuthMW(), controller.updateServiceGroup);
 
- router.get('/list', loggingMiddleware('getServiceGroups'), controller.getServiceGroups);
+ router.get('/list', loggingMiddleware('getServiceGroups'), mentorAuthMW(), controller.getServiceGroups);
  
  
  module.exports = router;

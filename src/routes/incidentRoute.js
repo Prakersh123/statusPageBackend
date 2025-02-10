@@ -14,11 +14,14 @@ const mentorAuthMW = require('../middlewares/mentorAuthMW');
 const controller = require('../controllers/incidentController');
 const router = express.Router();
 // GET REQUESTS
-router.post('/', loggingMiddleware('createIncident'), controller.createIncident);
-router.put('/', loggingMiddleware('createIncident'), controller.updateIncident);
+router.post('/', loggingMiddleware('createIncident'), mentorAuthMW(), controller.createIncident);
+router.put('/', loggingMiddleware('updateIncident'), mentorAuthMW(), controller.updateIncident);
 
-router.get('/list', loggingMiddleware('getIncidents'), controller.getIncidents);
-//  router.get('/dashboard', loggingMiddleware('getServicesDashboard'), controller.getServicesDashboard);
+router.get('/list', loggingMiddleware('getIncidents'), mentorAuthMW(), controller.getIncidents);
+router.get('/dashboardv2', loggingMiddleware('getIncidentsDashboard'), controller.getIncidentsDashboard);
+
+router.get('/dashboard', loggingMiddleware('getIncidentsDashboard'), mentorAuthMW(), controller.getIncidentsDashboard);
+
 
 
 

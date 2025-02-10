@@ -11,6 +11,8 @@
 const { errorHandler } = require("../middlewares/errorHandlingMW");
 
 const serviceHelper = require('../helper/serviceHelper');
+const organizationHelper = require("../helper/organizationHelper");
+const {pushToClient} = require('../helper/websocketHelper');
 class serviceController {
     createService = async (req, res) => {
         try {
@@ -68,10 +70,30 @@ class serviceController {
             if (serviceGroupData.Items.length == 0) {
                 return errorHandler(400, res, req, 'Sevice group does not exist', 'SERVICE GROUP NOT FOUND');
             } else {
-                await serviceHelper.createService(body, userDetails.userOrganizationID);
+                await serviceHelper.createService(body, userDetails.userOrganizationID, serviceData.Items[0]);
             }
 
             console.log(`[${req.apiName}] SERVICE created Successfuly`);
+            if (serviceData.stage != body.stage) {
+                try {
+                   const connections =  await organizationHelper.getAllConnectionIDOrganization(userDetails.userOrganizationID);
+                   let allPushPromise = connections.Items.map(async (item) => {
+                    await pushToClient('', item.sk, {
+                        'type': 'SERVICE_UPDATE',
+                        'serviceID': body.serviceID,
+                        'stage': {
+                            label: body.stage,
+                            value: body.stage
+                        }
+                        
+                    });
+                });
+                let promiseResponse = await Promise.allSettled(allPushPromise);
+                console.log(promiseResponse);
+                } catch(error) {
+                    console.log('Error in websocket', error);
+                }
+            }
             return res.status(200).send({
                 message: 'SUCCESS'
             });

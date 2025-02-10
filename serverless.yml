@@ -1,4 +1,4 @@
-service: identifyou-mentor
+service: statuspage
 
 provider:
   name: aws

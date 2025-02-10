@@ -75,7 +75,7 @@ class serviceHelper {
    } 
 
 
-   createService = async (body, organizationID) => {
+   createService = async (body, organizationID, serviceData = {logs: []}) => {
     let uniqueID = uuid.v4();
     if(body.serviceID) 
         uniqueID = body.serviceID;
@@ -92,8 +92,16 @@ class serviceHelper {
         updatedAt: Date.now(),
         orgServiceUniquness: `ORGID${organizationID}#name#${body.name}`,
         stage: body.stage,
-        description: body.description
+        description: body.description,
+        logs: []
     };
+    if (serviceData && serviceData.stage != body.stage) {
+        data.logs = serviceData.logs;
+        data.logs.push({
+            key: body.stage,
+            timeStamp: Date.now()
+        })
+    } 
     const ddbParams = {
         TableName: process.env.ORG_TABLE,
         Item: data

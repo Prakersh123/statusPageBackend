@@ -81,7 +81,8 @@ class orgnaizationController {
             });
             return res.status(200).send({
                 message: 'SUCCESS',
-                token
+                token,
+                userType: UserData.role
             });
 
         } catch (error) {

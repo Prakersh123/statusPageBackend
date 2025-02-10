@@ -12,6 +12,8 @@
 const { errorHandler } = require("../middlewares/errorHandlingMW");
 const serviceHelper = require('../helper/serviceHelper');
 const incidentHelper = require('../helper/incidentHelper');
+const organizationHelper = require("../helper/organizationHelper");
+const { pushToClient } = require("../helper/websocketHelper");
 
 class incidentController {
     createIncident = async (req, res) => {
@@ -46,8 +48,47 @@ class incidentController {
 
 
 
-            await incidentHelper.createIncident(body, userDetails.userOrganizationID)
-
+            let finalData = await incidentHelper.createIncident(body, userDetails.userOrganizationID)
+            try {
+                const connections =  await organizationHelper.getAllConnectionIDOrganization(userDetails.userOrganizationID);
+                let allPushPromise = connections.Items.map(async (item) => {
+                 await pushToClient('', item.sk, {
+                     'type': 'INCIDENT_UPDATE',
+                     'incidentData': {
+                        incidentName: finalData.incidentName,
+                        id: finalData.incidentID,
+                        currentStage: {
+                            label: finalData.currentStage,
+                            value: finalData.currentStage,
+                        },
+                        serviceGroup: {
+                            label: finalData.serviceID ? serviceGroupData[serviceFound[0].serviceGroupID].serviceGroupName : "",
+                            value: finalData.serviceID ? serviceFound[0].serviceGroupID : "",
+                        },
+                        service: {
+                            label: finalData.serviceID ? serviceFound[0].serviceName : "",
+                            value: finalData.serviceID || "",
+                        },
+                        updateList: finalData.updates.map((x)=>(
+                            {
+                                stageLabel: x.stage,
+                                stageValue: x.stage,
+                                comment: x.comment,
+                                dateValue: x.performedAt
+                            }
+                        )),
+                        createdAt: finalData.createdAt,
+                        updatedAt: finalData.updatedAt,
+                        description: finalData.description
+                    }
+                            
+                 });
+             });
+             let promiseResponse = await Promise.allSettled(allPushPromise);
+             console.log(promiseResponse);
+             } catch(error) {
+                 console.log('Error in websocket', error);
+             }
             console.log(`[${req.apiName}] SERVICE created Successfuly`);
             return res.status(200).send({
                 message: 'SUCCESS'
@@ -93,8 +134,47 @@ class incidentController {
 
 
 
-            await incidentHelper.createIncident(body, userDetails.userOrganizationID, incidentData.Items[0])
-
+            let finalData = await incidentHelper.createIncident(body, userDetails.userOrganizationID, incidentData.Items[0])
+            try {
+                const connections =  await organizationHelper.getAllConnectionIDOrganization(userDetails.userOrganizationID);
+                let allPushPromise = connections.Items.map(async (item) => {
+                 await pushToClient('', item.sk, {
+                     'type': 'INCIDENT_UPDATE',
+                     'incidentData': {
+                        incidentName: finalData.incidentName,
+                        id: finalData.incidentID,
+                        currentStage: {
+                            label: finalData.currentStage,
+                            value: finalData.currentStage,
+                        },
+                        serviceGroup: {
+                            label: finalData.serviceID ? serviceGroupData[serviceFound[0].serviceGroupID].serviceGroupName : "",
+                            value: finalData.serviceID ? serviceFound[0].serviceGroupID : "",
+                        },
+                        service: {
+                            label: finalData.serviceID ? serviceFound[0].serviceName : "",
+                            value: finalData.serviceID || "",
+                        },
+                        updateList: finalData.updates.map((x)=>(
+                            {
+                                stageLabel: x.stage,
+                                stageValue: x.stage,
+                                comment: x.comment,
+                                dateValue: x.performedAt
+                            }
+                        )),
+                        createdAt: finalData.createdAt,
+                        updatedAt: finalData.updatedAt,
+                        description: finalData.description
+                    }
+                            
+                 });
+             });
+             let promiseResponse = await Promise.allSettled(allPushPromise);
+             console.log(promiseResponse);
+             } catch(error) {
+                 console.log('Error in websocket', error);
+             }
             console.log(`[${req.apiName}] SERVICE created Successfuly`);
             return res.status(200).send({
                 message: 'SUCCESS'
@@ -200,6 +280,63 @@ class incidentController {
             return res.status(200).send({
                 message: 'SUCCESS',
                 listItems: finalAns
+            });
+
+        } catch (error) {
+            return errorHandler(500, res, req, 'OUTERMOST CATCH TRIGGERED', 'SOMETHIGN WENT WRONG', error);
+        }
+    }
+    getIncidentsDashboard = async (req, res) => {
+        try {
+            let userDetails = req.userDetails;
+            const serviceGroups = {};
+            let serviceMap = [];
+            let incidents = [];
+            userDetails = {
+                userOrganizationID: '12345'
+            };
+            const listItems = await serviceHelper.givenOrgGetServices(userDetails.userOrganizationID);
+            listItems.Items.forEach((item) => {
+                if (item.sk.includes('SERVICEGROUP#')) {
+                    serviceGroups[item.serviceGroupID] = item;
+                } else if (item.sk.includes('SERVICE#')) {
+                    serviceMap[item.serviceID] = item;
+                } else {
+                    incidents.push(item);
+                }
+            });
+            incidents = incidents.map((item) => ({
+                incidentName: item.incidentName,
+                id: item.incidentID,
+                currentStage: {
+                    label: item.currentStage,
+                    value: item.currentStage,
+                },
+                serviceGroup: {
+                    label: item.serviceID ? serviceGroups[serviceMap[item.serviceID].serviceGroupID].serviceGroupName : "",
+                    value: item.serviceID ? serviceMap[item.serviceID].serviceGroupID : "",
+                },
+                service: {
+                    label: item.serviceID ? serviceMap[item.serviceID].serviceName : "",
+                    value: item.serviceID || "",
+                },
+                updateList: item.updates.map((x)=>(
+                    {
+                        stageLabel: x.stage,
+                        stageValue: x.stage,
+                        comment: x.comment,
+                        dateValue: x.performedAt
+                    }
+                )),
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+                description: item.description
+
+            }))
+            console.log(`[${req.apiName}] Got all  Data`, listItems);
+            return res.status(200).send({
+                message: 'SUCCESS',
+                listItems: incidents
             });
 
         } catch (error) {
